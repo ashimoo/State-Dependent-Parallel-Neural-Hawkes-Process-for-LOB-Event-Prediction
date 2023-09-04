@@ -328,7 +328,7 @@ class DroppedLinearV2(nn.Module):
         if y != 4*self.input_dim:
             print(f'Wrong Input Features. Please use tensor with {4*self.input_dim} Input Features')
             return 0
-        output = input.matmul(self.weight.t()*self.m4)
+        output = input.matmul(self.weight.t()*self.weight_mask)
         if self.bias is not None:
             output += self.bias
         ret = output
