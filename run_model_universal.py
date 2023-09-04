@@ -10,10 +10,6 @@ from tqdm import tqdm
 import random
 import argparse
 from utils import *
-from model.model_SAHP import SAHP
-from model.model_Hawkes import Hawkes
-from model.model_LSTM_PP import LSTM_PP
-from model.model_CTLSTM_PP import CTLSTM_PP
 from model.model_CT4LSTM_PPP import CT4LSTM_PPP
 
 def define_args():
@@ -66,16 +62,7 @@ def main(dataset,class_loss_weight,model,mkt_state,seed,gpu):
 
     data_obj = parse_datasets_separate(device,batch_size,train_record_list[:(len(train_record_list)//batch_size)*batch_size],val_record_list[:(len(val_record_list)//batch_size)*batch_size],test_record_list[:(len(test_record_list)//batch_size)*batch_size])
 
-    if args.model == 'CTLSTM_PP':
-        model = CTLSTM_PP(num_events = 4, hidden_dim = 16, input_embed_dim = 16)
-    elif args.model == 'LSTM_PP':
-        model = LSTM_PP(num_events = 4, hidden_dim = 16, input_embed_dim = 16)
-    elif args.model == 'SAHP':
-        model = SAHP(num_events = 4, hidden_dim = 16, input_embed_dim = 16)
-    elif args.model == 'Hawkes':
-        model = Hawkes(num_events = 4, hidden_dim = 16, input_embed_dim = 16)
-    elif args.model == 'CT4LSTM_PPP':
-        model = CT4LSTM_PPP(num_events = 4, hidden_dim = 16, input_embed_dim = 16)
+    model = CT4LSTM_PPP(num_events = 4, hidden_dim = 16, input_embed_dim = 16)
 
     model = model.cuda()
 
