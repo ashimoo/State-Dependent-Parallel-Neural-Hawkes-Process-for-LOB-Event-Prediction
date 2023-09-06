@@ -255,45 +255,6 @@ class CT4LSTM_PPP(nn.Module):
 
             return pred_time.reshape(-1), pred_type.reshape(-1)
 
-
-class DroppedLinear(nn.Module):
-    def __init__(self, x_dim, h_dim, bias=True):
-        super().__init__()
-        self.x_dim = x_dim
-        self.h_dim = h_dim
-        self.bias = bias
-        self.weight = torch.nn.Parameter(torch.Tensor(4*h_dim, x_dim + 4*h_dim))
-        m1 = torch.tensor(h_dim*[1]+3*h_dim*[0]).unsqueeze(-1).repeat(1,h_dim).transpose(0,1)
-        m2 = torch.vstack((m1,torch.tensor(h_dim*[0]+ h_dim*[1] +2*h_dim*[0]).unsqueeze(-1).repeat(1,h_dim).transpose(0,1)))
-        m3 = torch.vstack((m2, torch.tensor(2 * h_dim * [0] + h_dim * [1] + h_dim * [0]).unsqueeze(-1).repeat(1,h_dim).transpose(0, 1)))
-        self.m4 = torch.vstack((m3, torch.tensor(3 * h_dim * [0] + h_dim * [1]).unsqueeze(-1).repeat(1,h_dim).transpose(0, 1)))
-        self.m5 = torch.vstack((self.m4,torch.ones(size=(x_dim, 4 *h_dim)))).cuda()
-        if bias:
-            self.bias = torch.nn.Parameter(torch.Tensor(4*h_dim))
-        else:
-            self.register_parameter('bias', None)
-        self.reset_parameters()
-
-    def reset_parameters(self):
-        torch.nn.init.kaiming_uniform_(self.weight, a=math.sqrt(5))
-        if self.bias is not None:
-            fan_in, _ = torch.nn.init._calculate_fan_in_and_fan_out(self.weight)
-            bound = 1 / math.sqrt(fan_in)
-            torch.nn.init.uniform_(self.bias, -bound, bound)
-
-    def forward(self, input):
-        x, y = input.shape
-        if y != self.x_dim + 4*self.h_dim:
-            print(f'Wrong Input Features. Please use tensor with {self.x_dim + 4*self.h_dim} Input Features')
-            return 0
-        a = self.weight.t()
-        b = self.weight.t()*self.m5
-        output = input.matmul(self.weight.t()*self.m5)
-        if self.bias is not None:
-            output += self.bias
-        ret = output
-        return ret
-
 class DroppedLinearV2(nn.Module):
     def __init__(self, input_dim, output_dim, bias=True):
         super().__init__()
